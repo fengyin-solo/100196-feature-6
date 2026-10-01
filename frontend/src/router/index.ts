@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import Dashboard from '@/views/Dashboard.vue'
 const Windfarm = () => import('@/views/windfarm/index.vue')
+const WindfarmOverview = () => import('@/views/windfarm/Overview.vue')
 const Turbine = () => import('@/views/turbine/index.vue')
 const Blade = () => import('@/views/blade/index.vue')
 const Gearbox = () => import('@/views/gearbox/index.vue')
@@ -25,6 +26,7 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'dashboard', component: Dashboard },
     { path: '/windfarm', name: 'windfarm', component: Windfarm },
+    { path: '/windfarm/overview', name: 'windfarm-overview', component: WindfarmOverview },
     { path: '/turbine', name: 'turbine', component: Turbine },
     { path: '/blade', name: 'blade', component: Blade },
     { path: '/gearbox', name: 'gearbox', component: Gearbox },

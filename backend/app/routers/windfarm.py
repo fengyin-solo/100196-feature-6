@@ -20,14 +20,47 @@ STATUSES = ["在建", "运行中", "限功率", "停运检修"]
 def list_entries(
     keyword: str | None = Query(default=None, description="按场站编码检索"),
     status: str | None = Query(default=None, description="在建、运行中、限功率、停运检修"),
+    region: str | None = Query(default=None, description="按所在区域过滤"),
     page: int = 1,
     size: int = 20,
 ) -> PageResult[dict]:
-    """按场站编码与状态过滤风电场站列表；没有数据时返回空页，不报错。"""
+    """按场站编码、状态与所在区域过滤风电场站列表；没有数据时返回空页，不报错。"""
     if size > 200:
         raise HTTPException(status_code=400, detail="每页最多 200 条，请缩小分页范围")
-    items, total = service.list_entries(keyword=keyword, status=status, page=page, size=size)
+    items, total = service.list_entries(keyword=keyword, status=status, region=region, page=page, size=size)
     return PageResult(items=items, total=total, page=page, size=size)
+
+
+@router.get("/overview")
+def overview() -> dict[str, Any]:
+    """区域 × 装机容量分档概览：同一区域的场站归在一起，按当前口径逐档统计台数。"""
+    return service.overview()
+
+
+@router.post("/tiers", response_model=ActionResult)
+def adjust_tiers(payload: EntryPayload) -> ActionResult:
+    """调整装机容量分档口径：已有场站按新口径重算，旧口径的分档结论按当时版本留档。"""
+    result, message = service.adjust_tiers(
+        payload.values.get("下限"),
+        payload.values.get("上限"),
+        payload.remark or payload.values.get("备注"),
+    )
+    if result is None:
+        return ActionResult(ok=False, message=message)
+    return ActionResult(ok=True, message=message, entry=result)
+
+
+@router.get("/tier-history")
+def tier_history() -> dict[str, Any]:
+    """历史分档留档：每次口径调整前的分档结论，按当时那一版口径保留。"""
+    return {"items": service.tier_history()}
+
+
+@router.get("/export")
+def export_entries() -> dict[str, Any]:
+    """导出风电场站清单：返回当前过滤条件下的全量数据。"""
+    items, total = service.list_entries(page=1, size=10000)
+    return {"module": "windfarm", "total": total, "items": items}
 
 
 @router.get("/{entry_id}", response_model=dict)
@@ -56,10 +89,3 @@ def run_action(entry_id: int, payload: EntryPayload) -> ActionResult:
     if entry is None:
         return ActionResult(ok=False, message=message)
     return ActionResult(ok=True, message=message, entry=entry)
-
-
-@router.get("/export")
-def export_entries() -> dict[str, Any]:
-    """导出风电场站清单：返回当前过滤条件下的全量数据。"""
-    items, total = service.list_entries(page=1, size=10000)
-    return {"module": "windfarm", "total": total, "items": items}

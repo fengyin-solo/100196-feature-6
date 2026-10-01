@@ -6,6 +6,7 @@
         <p class="page-desc">维护风电场站，围绕场站编码、场站名称、所在区域、装机容量做登记、筛选与状态流转。</p>
       </div>
       <div class="page-actions">
+        <RouterLink class="btn" to="/windfarm/overview">分档概览</RouterLink>
         <button class="btn primary" type="button" @click="openCreate">登记风电场站</button>
         <button class="btn" type="button" @click="exportRows">导出风电场站清单</button>
       </div>
@@ -26,6 +27,11 @@
       <button class="btn" type="submit">查询</button>
       <button class="btn ghost" type="button" @click="resetFilters">重置条件</button>
     </form>
+
+    <p v-if="regionFilter" class="region-chip">
+      已按区域过滤：{{ regionFilter }}
+      <button class="link" type="button" @click="clearRegion">清除</button>
+    </p>
 
     <table class="data-table">
       <thead>
@@ -63,7 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { request } from '@/api/client'
 
@@ -75,14 +82,25 @@ const actions = ["并网投运", "申请限功率", "转入检修"]
 const statuses = ["在建", "运行中", "限功率", "停运检修"]
 const stats = [{"label": "在运场站", "value": 0}, {"label": "装机容量", "value": 0}, {"label": "限功率场站", "value": 0}]
 
+const route = useRoute()
+const router = useRouter()
+
 const rows = ref<Row[]>([])
 const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
 const filterFields = columns.slice(0, 3)
 
+const regionFilter = computed(() => (filters.value['所在区域'] ?? '').trim())
+
 function resetFilters() {
   filters.value = {}
+  void reload()
+}
+
+function clearRegion() {
+  filters.value = { ...filters.value, 所在区域: '' }
+  void router.replace({ query: {} })
   void reload()
 }
 
@@ -112,9 +130,22 @@ async function runAction(action: string, row: Row) {
 
 async function reload() {
   errorMessage.value = ''
-  const query = new URLSearchParams(filters.value as Record<string, string>).toString()
+  const query = new URLSearchParams()
+  for (const [field, value] of Object.entries(filters.value)) {
+    const keyword = value.trim()
+    if (!keyword) {
+      continue
+    }
+    if (field === '场站编码') {
+      query.set('keyword', keyword)
+    } else if (field === '所在区域') {
+      query.set('region', keyword)
+    } else {
+      query.set(field, keyword)
+    }
+  }
   try {
-    const response = await request(`${ENDPOINT}?${query}`)
+    const response = await request(`${ENDPOINT}?${query.toString()}`)
     if (!response.ok) {
       throw new Error('风电场站列表读取失败')
     }
@@ -126,5 +157,11 @@ async function reload() {
   }
 }
 
-onMounted(reload)
+onMounted(() => {
+  const region = route.query.region
+  if (typeof region === 'string' && region.trim()) {
+    filters.value = { ...filters.value, 所在区域: region.trim() }
+  }
+  void reload()
+})
 </script>

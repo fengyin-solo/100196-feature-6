@@ -33,3 +33,30 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .link { border: none; background: none; color: var(--brand); cursor: pointer; padding: 0; }
 .page-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--muted); }
 .error-text { color: #b42318; }
+
+/* 场站分档概览 */
+.tier-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tier-tab { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
+.tier-tab.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+.config-panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.config-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; margin-bottom: 8px; }
+.config-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.config-message { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.history-list { margin-top: 10px; display: flex; flex-direction: column; gap: 12px; }
+.history-item header { display: flex; gap: 8px; align-items: baseline; font-size: 13px; margin-bottom: 6px; }
+.history-item header span { color: var(--muted); font-size: 12px; }
+.region-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.region-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.region-card.empty { border-style: dashed; background: #fbfcfe; }
+.region-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.region-head h3 { margin: 0; font-size: 15px; }
+.placeholder-box { border: 1px dashed var(--border); border-radius: 6px; padding: 20px 12px; color: var(--muted); font-size: 13px; text-align: center; background: #fafbfd; margin: 0; }
+.farm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.farm-chip { display: inline-flex; flex-direction: column; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 12px; background: #f8fafc; }
+.farm-chip em { font-style: normal; color: var(--muted); }
+.farm-chip[data-status='运行中'] { border-color: #10b981; background: #ecfdf5; }
+.farm-chip[data-status='限功率'] { border-color: #f59e0b; background: #fffbeb; }
+.farm-chip[data-status='在建'] { border-color: #3b82f6; background: #eff6ff; }
+.tier-table th, .tier-table td { padding: 6px 8px; font-size: 12px; }
+.active-row { background: #eaf1fe; }
+.region-chip { display: inline-flex; align-items: center; gap: 8px; background: #eaf1fe; border-radius: 999px; padding: 4px 12px; font-size: 12px; margin: 0 0 10px; }
